@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partnerships IO Generator — Pillar4 Media</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --navy:#0F1F38; --teal:#0D9488; --teal-lt:#CCFBF1; --teal-xlt:#F0FDFA;
+  --slate:#64748B; --border:#E2E8F0; --off:#F8FAFC; --white:#fff;
+  --font:'Barlow',sans-serif;
+  --r:8px; --r-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--off);color:var(--navy);font-size:14px;line-height:1.5}
+
+/* ── TOP BAR ── */
+.top-bar{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:54px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.top-logo{font-family:var(--font);font-size:15px;font-weight:800;color:#fff;letter-spacing:.01em}
+.top-logo span{color:var(--teal)}
+.top-actions{display:flex;gap:8px}
+
+/* ── LAYOUT ── */
+.content{max-width:860px;margin:0 auto;padding:36px 24px 100px}
+h1{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.subtitle{font-size:14px;color:var(--slate);margin-bottom:32px;font-weight:400}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px 28px;margin-bottom:18px;box-shadow:var(--shadow)}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--teal);margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+
+/* ── FORM ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.field{margin-bottom:0}
+.label{font-size:11px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
+input[type=text],input[type=date],input[type=email],input[type=number],select,textarea{
+  width:100%;font-family:var(--font);font-size:13px;font-weight:500;
+  padding:9px 12px;border:1.5px solid var(--border);
+  border-radius:var(--r);outline:none;transition:border-color .15s;
+  color:var(--navy);background:var(--white)}
+input:focus,select:focus,textarea:focus{border-color:var(--teal)}
+textarea{resize:vertical;min-height:72px}
+.gap-14{display:grid;gap:14px}
+
+/* ── DEAL TYPE SELECTOR ── */
+.deal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:0}
+.deal-card{border:2px solid var(--border);border-radius:var(--r);padding:13px 15px;cursor:pointer;transition:all .15s;background:var(--white);user-select:none}
+.deal-card:hover{border-color:var(--teal)}
+.deal-card.active{border-color:var(--teal);background:var(--teal-xlt)}
+.deal-card .dc-name{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.deal-card .dc-desc{font-size:11px;color:var(--slate);line-height:1.3}
+
+/* ── DEAL DETAIL BOXES ── */
+.deal-box{border:1.5px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;margin-top:14px;background:var(--off);display:none}
+.deal-box.open{display:block}
+.deal-box-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--teal);margin-bottom:14px}
+
+/* ── PAYMENT SUMMARY BOX ── */
+.payment-summary{background:var(--teal-xlt);border:1.5px solid var(--teal-lt);border-radius:var(--r);padding:12px 16px;margin-top:14px;font-size:12px;color:var(--navy);line-height:1.6;display:none}
+.payment-summary strong{font-weight:700}
+
+/* ── EXHIBIT UPLOAD ── */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r);padding:28px;text-align:center;cursor:pointer;transition:all .18s;background:var(--white)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--teal);background:var(--teal-xlt)}
+.upload-zone p{font-size:13px;color:var(--slate);font-weight:500}
+.upload-zone p strong{color:var(--navy)}
+.upload-success{display:none;font-size:12px;color:var(--teal);font-weight:600;margin-top:10px;padding:8px 12px;background:var(--teal-xlt);border-radius:var(--r);border:1px solid var(--teal-lt)}
+
+/* ── BUTTONS ── */
+.btn{font-family:var(--font);font-size:13px;font-weight:700;padding:10px 20px;border-radius:var(--r);border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px;letter-spacing:.01em}
+.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{opacity:.88}
+.btn-secondary{background:var(--white);color:var(--navy);border:1.5px solid var(--border)}.btn-secondary:hover{border-color:var(--teal);color:var(--teal)}
+.action-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+
+/* ── IO PREVIEW ── */
+.preview-wrap{display:none}
+.preview-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--slate);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.io-doc{font-family:Georgia,serif;font-size:12.5pt;line-height:1.8;color:#111;background:#fff;border:1px solid #ddd;border-radius:var(--r-lg);padding:56px 64px;max-width:820px;box-shadow:var(--shadow)}
+.io-doc h2{font-size:15pt;font-weight:bold;text-align:center;margin-bottom:22px;font-family:Georgia,serif}
+.io-doc p{margin-bottom:12px;font-size:12pt}
+.io-doc table{width:100%;border-collapse:collapse;margin:16px 0;font-size:11pt}
+.io-doc td{padding:10px 14px;border:1px solid #ccc;vertical-align:top}
+.io-doc td:first-child{width:22%;font-weight:bold;background:#f5f5f5;white-space:nowrap}
+.io-doc ul{margin:0;padding-left:20px}
+.io-doc li{margin-bottom:5px}
+.io-sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:36px}
+.io-sig-block{border-top:1px solid #333;padding-top:10px;font-size:10.5pt;line-height:2}
+
+/* ── EXHIBIT PAGE ── */
+.exhibit-page{font-family:Georgia,serif;font-size:11pt;background:#fff;border:1px solid #ddd;border-radius:var(--r-lg);padding:48px 64px;margin-top:16px;box-shadow:var(--shadow)}
+.exhibit-page h3{font-size:14pt;font-weight:bold;margin-bottom:6px}
+.exhibit-page p{font-size:11pt;color:#555;margin-bottom:18px}
+.exhibit-table{width:100%;border-collapse:collapse;font-size:10pt}
+.exhibit-table th{background:#f0f0f0;padding:7px 10px;border:1px solid #ccc;text-align:left;font-weight:bold;font-size:9pt}
+.exhibit-table td{padding:7px 10px;border:1px solid #ccc}
+.exhibit-table tr:nth-child(even) td{background:#fafafa}
+
+
+/* ── EDITABLE PREVIEW ── */
+.io-doc[contenteditable="true"]:focus{outline:2px solid var(--teal);outline-offset:2px;border-radius:var(--r-lg)}
+.io-doc[contenteditable="true"]:focus-within td:hover{background:rgba(13,148,136,.04)}
+.edit-note{background:var(--teal-xlt);border:1px solid var(--teal-lt);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--teal);font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.edit-note span{font-weight:400;color:var(--slate)}
+.preview-actions{display:flex;gap:8px;margin-top:14px;margin-bottom:20px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:680px){
+  .deal-grid{grid-template-columns:1fr 1fr}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .io-doc{padding:28px}
+  .io-sig-grid{grid-template-columns:1fr;gap:24px}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-logo">Partnerships IO Generator <span>·</span> Pillar4 Media</div>
+  <div class="top-actions">
+    <button class="btn" style="font-size:12px;padding:7px 16px;background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.35);border-radius:var(--r);font-family:var(--font);font-weight:700;cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'" onclick="previewIO()">Preview</button>
+    <button class="btn btn-primary" style="font-size:12px;padding:7px 18px" onclick="downloadIO()">Download PDF</button>
+    <button class="btn" style="font-size:12px;padding:7px 16px;background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.35);border-radius:var(--r);font-family:var(--font);font-weight:700;cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'" onclick="downloadIODocx()">Download DOCX</button>
+  </div>
+</div>
+
+<div class="content">
+  <h1>Insertion Order</h1>
+  <p class="subtitle">Fill in the fields below, then preview or download the signed-ready IO.</p>
+
+  <!-- ── PARTIES & DATES ── -->
+  <div class="card">
+    <div class="card-title">Parties &amp; Dates</div>
+    <div class="gap-14">
+      <div class="grid-2">
+        <div class="field"><label class="label">Brand / Company Name</label><input type="text" id="io-brand" placeholder="e.g. NordicTrack"></div>
+        <div class="field"><label class="label">Brand Contact Name</label><input type="text" id="io-brand-contact" placeholder="e.g. Jane Smith"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label class="label">Brand Contact Email</label><input type="email" id="io-brand-email" placeholder="jane@brand.com"></div>
+        <div class="field"><label class="label">Brand Signatory Title</label><input type="text" id="io-brand-title" placeholder="e.g. VP Marketing"></div>
+      </div>
+      <div class="grid-3">
+        <div class="field"><label class="label">Effective Date</label><input type="date" id="io-date"></div>
+        <div class="field"><label class="label">Start Date</label><input type="date" id="io-start"></div>
+        <div class="field"><label class="label">End Date</label><input type="date" id="io-end"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label class="label">P4 Signatory Name</label><input type="text" id="io-p4-sig" placeholder="e.g. Emily Schroeder"></div>
+        <div class="field"><label class="label">P4 Signatory Title</label><input type="text" id="io-p4-title" placeholder="e.g. Head of Partnerships"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DEAL STRUCTURE ── -->
+  <div class="card">
+    <div class="card-title">Deal Structure</div>
+    <div class="deal-grid">
+      <div class="deal-card" id="dt-flat" onclick="toggleDeal('flat')">
+        <div class="dc-name">Flat Fee</div>
+        <div class="dc-desc">Fixed $ per deliverable or placement</div>
+      </div>
+      <div class="deal-card" id="dt-cpa" onclick="toggleDeal('cpa')">
+        <div class="dc-name">CPA</div>
+        <div class="dc-desc">$ or % per purchase</div>
+      </div>
+      <div class="deal-card" id="dt-cpc" onclick="toggleDeal('cpc')">
+        <div class="dc-name">CPC</div>
+        <div class="dc-desc">$ per click to brand site</div>
+      </div>
+      <div class="deal-card" id="dt-cpl" onclick="toggleDeal('cpl')">
+        <div class="dc-name">CPL</div>
+        <div class="dc-desc">$ per qualified lead</div>
+      </div>
+    </div>
+
+    <!-- Flat Fee -->
+    <div class="deal-box" id="box-flat">
+      <div class="deal-box-label">Flat Fee Details</div>
+      <div id="flat-rows" class="gap-14">
+        <div class="flat-row grid-3">
+          <div class="field"><label class="label">Deliverable</label><input type="text" placeholder="e.g. Dedicated Review"></div>
+          <div class="field"><label class="label">Amount ($)</label><input type="number" placeholder="5000"></div>
+          <div class="field"><label class="label">Cadence</label><input type="text" placeholder="e.g. per review"></div>
+        </div>
+      </div>
+      <button onclick="addFlatRow()" style="margin-top:10px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--teal);background:none;border:1.5px solid var(--teal-lt);border-radius:var(--r);padding:6px 14px;cursor:pointer">+ Add deliverable</button>
+    </div>
+
+    <!-- CPA -->
+    <div class="deal-box" id="box-cpa">
+      <div class="deal-box-label">CPA Details</div>
+      <div class="gap-14">
+        <div class="grid-2">
+          <div class="field"><label class="label">Compensation Type</label>
+            <select id="cpa-comp-type" onchange="updatePaymentSummary()">
+              <option value="dollar">Fixed $ per purchase</option>
+              <option value="percent">% of gross sale amount</option>
+            </select>
+          </div>
+          <div class="field" id="cpa-dollar-wrap"><label class="label">$ Amount per Purchase</label><input type="number" id="cpa-dollar" placeholder="e.g. 90" oninput="updatePaymentSummary()"></div>
+          <div class="field" id="cpa-pct-wrap" style="display:none"><label class="label">% of Gross Sale</label><input type="number" id="cpa-pct" placeholder="e.g. 15" oninput="updatePaymentSummary()"></div>
+        </div>
+        <div class="grid-3">
+          <div class="field"><label class="label">Cookie Window (days)</label><input type="number" id="cpa-cookie" value="30" oninput="updatePaymentSummary()"></div>
+          <div class="field"><label class="label">EPC Backstop (optional)</label><input type="number" id="cpa-epc" placeholder="e.g. 3.00" oninput="updatePaymentSummary()"></div>
+          <div class="field"><label class="label">Affiliate Network (optional)</label><input type="text" id="cpa-network" placeholder="e.g. Impact" oninput="updatePaymentSummary()"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CPC -->
+    <div class="deal-box" id="box-cpc">
+      <div class="deal-box-label">CPC Details</div>
+      <div class="gap-14">
+        <div class="grid-3">
+          <div class="field"><label class="label">$ per Click</label><input type="number" id="cpc-rate" placeholder="e.g. 2.50" oninput="updatePaymentSummary()"></div>
+          <div class="field"><label class="label">Reporting Method</label>
+            <select id="cpc-reporting" onchange="updatePaymentSummary()">
+              <option value="Shared Google Sheet">Shared Google Sheet</option>
+              <option value="affiliate network">Affiliate network</option>
+              <option value="GA4 export">GA4 export</option>
+              <option value="mutually agreed dashboard">Mutually agreed dashboard</option>
+            </select>
+          </div>
+          <div class="field"><label class="label">Positions (optional)</label><input type="text" id="cpc-positions" placeholder="e.g. P1, P2, P3" oninput="updatePaymentSummary()"></div>
+        </div>
+        <div class="field"><label class="label">Monthly Click Estimate (optional)</label><input type="text" id="cpc-estimate" placeholder="e.g. ~11,600 clicks/mo at P1" oninput="updatePaymentSummary()"></div>
+      </div>
+    </div>
+
+    <!-- CPL -->
+    <div class="deal-box" id="box-cpl">
+      <div class="deal-box-label">CPL Details</div>
+      <div class="gap-14">
+        <div class="grid-2">
+          <div class="field"><label class="label">Lead Definition</label><input type="text" id="cpl-def" placeholder="e.g. a completed form submission verified by Company" oninput="updatePaymentSummary()"></div>
+          <div class="field"><label class="label">$ per Lead</label><input type="number" id="cpl-rate" placeholder="e.g. 25" oninput="updatePaymentSummary()"></div>
+          <div class="field"><label class="label">Lead Verification Method</label><input type="text" id="cpl-verify" placeholder="e.g. shared CRM report" oninput="updatePaymentSummary()"></div>
+          <div class="field"><label class="label">Cookie Window (days)</label><input type="number" id="cpl-cookie" value="30" oninput="updatePaymentSummary()"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic payment summary -->
+    <div class="payment-summary" id="payment-summary"></div>
+  </div>
+
+  <!-- ── SERVICES & SCOPE ── -->
+  <div class="card">
+    <div class="card-title">Services &amp; Scope</div>
+    <div class="gap-14">
+      <div class="field">
+        <label class="label">Properties / Channels</label>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:6px">
+          <label style="font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" value="website" checked> Website editorial</label>
+          <label style="font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" value="youtube"> YouTube</label>
+          <label style="font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" value="tiktok"> TikTok</label>
+          <label style="font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" value="instagram"> Instagram</label>
+          <label style="font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" value="newsletter"> Newsletter</label>
+          <label style="font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" value="paid_search"> Paid Search</label>
+          <label style="font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" value="whitelisting"> Whitelisting</label>
+        </div>
+      </div>
+      <div class="field"><label class="label">Specific Sites / Properties</label>
+        <input type="text" id="io-properties" placeholder="e.g. Sleepopolis, Garage Gym Reviews, Barbend"></div>
+      <div class="field"><label class="label">Scope of Work</label>
+        <textarea id="io-scope" placeholder="e.g. 12 net-new editorial articles on Fortune, 3 YouTube reviews on GGR, 20 planned optimizations on GGR and BarBend..."></textarea></div>
+      <div class="field"><label class="label">Keyword Bidding</label>
+        <select id="io-keywords">
+          <option value="brand_only">Provider may only bid on Company-branded keywords as permitted by Company</option>
+          <option value="brand_and_nonbrand">Provider may bid on branded and non-branded keywords as agreed</option>
+          <option value="none">Paid search not included in this IO</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAYMENT TERMS ── -->
+  <div class="card">
+    <div class="card-title">Payment Terms</div>
+    <div class="gap-14">
+      <div class="grid-2">
+        <div class="field"><label class="label">Payment Terms</label>
+          <select id="io-payment-terms" onchange="updatePaymentSummary()">
+            <option value="Net-30">Net-30</option>
+            <option value="Net-60">Net-60</option>
+            <option value="Net-15">Net-15</option>
+            <option value="Prepayment">Prepayment upon signing</option>
+          </select>
+        </div>
+        <div class="field"><label class="label">Invoicing Method</label>
+          <select id="io-invoice-method" onchange="updatePaymentSummary()">
+            <option value="month_end">Month-end invoice via shared reporting</option>
+            <option value="affiliate_net">Via affiliate network (automatic)</option>
+            <option value="upfront">Upfront upon signing</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label class="label">Additional Payment Notes (optional)</label>
+        <input type="text" id="io-payment-notes" placeholder="e.g. bonus opportunity at month-end based on performance"></div>
+    </div>
+  </div>
+
+  <!-- ── ADDITIONAL TERMS ── -->
+  <div class="card">
+    <div class="card-title">Additional Terms</div>
+    <div class="gap-14">
+      <div class="field"><label class="label">Content Review Rights</label>
+        <select id="io-review-rights">
+          <option value="none">No content review rights</option>
+          <option value="48hr">Partner has 48-hour review window prior to publication</option>
+        </select>
+      </div>
+      <div class="field"><label class="label">Additional Notes / Custom Clauses (optional)</label>
+        <textarea id="io-notes" placeholder="Any additional terms, custom clauses, or exhibit references..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- ── EXHIBIT A ── -->
+  <div class="card">
+    <div class="card-title">Exhibit A — Media Package (optional)</div>
+    <p style="font-size:13px;color:var(--slate);margin-bottom:16px;font-weight:400">Upload a media package CSV or Excel file to attach as Exhibit A. The IO will reference it automatically.</p>
+    <div class="upload-zone" id="exhibit-zone"
+      onclick="document.getElementById('exhibit-file').click()"
+      ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+      <div style="font-size:28px;margin-bottom:8px">📎</div>
+      <p><strong>Click to upload</strong> or drag and drop</p>
+      <p style="font-size:11px;margin-top:4px;font-weight:400">CSV or Excel (.xlsx, .csv)</p>
+    </div>
+    <input type="file" id="exhibit-file" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleExhibitFile(this)">
+    <div class="upload-success" id="exhibit-success"></div>
+    <div class="field" style="margin-top:14px;display:none" id="exhibit-label-wrap">
+      <label class="label">Exhibit Label</label>
+      <input type="text" id="exhibit-label" value="Exhibit A — Media Plan">
+    </div>
+  </div>
+
+  <!-- ── ACTIONS ── -->
+  <div class="action-bar">
+    <button class="btn btn-primary" onclick="previewIO()">&#128065; Preview IO</button>
+    <button class="btn btn-secondary" onclick="downloadIO()">&#128438; Download PDF</button>
+    <button class="btn btn-secondary" onclick="downloadIODocx()">&#128196; Download DOCX</button>
+  </div>
+
+  <!-- ── PREVIEW ── -->
+  <div class="preview-wrap" id="preview-wrap">
+    <div class="preview-label">IO Preview</div>
+    <div class="edit-note">
+      ✏️ <strong>Editable</strong> <span>— Click anywhere in the document below to edit the language directly. Your changes will be included in the download.</span>
+    </div>
+    <div id="io-preview-content"></div>
+    <div id="exhibit-preview-content"></div>
+    <div class="preview-actions">
+      <button class="btn btn-primary" onclick="downloadFromPreview()">&#128438; Download PDF (with edits)</button>
+      <button class="btn btn-secondary" onclick="downloadDocxFromPreview()">&#128196; Download DOCX (with edits)</button>
+      <button class="btn btn-secondary" onclick="regenerateIO()">&#8635; Regenerate from fields</button>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+// ── STATE ──
+const activeDealTypes = new Set();
+let exhibitData = null;
+
+// ── INIT ──
+document.getElementById('io-date').value = new Date().toISOString().split('T')[0];
+
+// ── DEAL TYPE TOGGLE ──
+function toggleDeal(type) {
+  const card = document.getElementById('dt-' + type);
+  const box  = document.getElementById('box-' + type);
+  if (activeDealTypes.has(type)) {
+    activeDealTypes.delete(type);
+    card.classList.remove('active');
+    box.classList.remove('open');
+  } else {
+    activeDealTypes.add(type);
+    card.classList.add('active');
+    box.classList.add('open');
+  }
+  // Show/hide pct vs dollar in CPA
+  if (type === 'cpa') syncCpaFields();
+  updatePaymentSummary();
+}
+
+function syncCpaFields() {
+  const t = document.getElementById('cpa-comp-type').value;
+  document.getElementById('cpa-dollar-wrap').style.display = t === 'dollar'  ? '' : 'none';
+  document.getElementById('cpa-pct-wrap').style.display   = t === 'percent' ? '' : 'none';
+  updatePaymentSummary();
+}
+document.getElementById('cpa-comp-type').addEventListener('change', syncCpaFields);
+
+// ── FLAT FEE ROWS ──
+function addFlatRow() {
+  const container = document.getElementById('flat-rows');
+  const row = document.createElement('div');
+  row.className = 'flat-row grid-3';
+  row.innerHTML = `
+    <div class="field"><label class="label">Deliverable</label><input type="text" placeholder="e.g. Listicle placement"></div>
+    <div class="field"><label class="label">Amount ($)</label><input type="number" placeholder="5000"></div>
+    <div class="field"><label class="label">Cadence</label><input type="text" placeholder="e.g. per review"></div>`;
+  container.appendChild(row);
+}
+
+// ── PAYMENT SUMMARY ──
+function updatePaymentSummary() {
+  const el = document.getElementById('payment-summary');
+  const paymentTerms  = document.getElementById('io-payment-terms').value;
+  const invoiceMethod = document.getElementById('io-invoice-method').value;
+  const parts = [];
+
+  if (activeDealTypes.has('flat')) {
+    parts.push('<strong>Flat fee:</strong> Provider will invoice Company upon completion of each deliverable. Payment due ' + paymentTerms + '.');
+  }
+  if (activeDealTypes.has('cpa')) {
+    const compType = document.getElementById('cpa-comp-type').value;
+    const cookie   = document.getElementById('cpa-cookie').value || '30';
+    const network  = document.getElementById('cpa-network').value;
+    const epc      = document.getElementById('cpa-epc').value;
+    if (compType === 'dollar') {
+      const amt = document.getElementById('cpa-dollar').value;
+      parts.push('<strong>CPA:</strong> Provider will be paid ' + (amt ? '$' + amt : '[amount]') + ' per purchase originating from Provider\'s content within a ' + cookie + '-day cookie window.' + (epc ? ' Minimum EPC backstop of $' + epc + '.' : '') + (network ? ' Tracked via ' + network + '.' : ' Tracked via mutually shared reporting.'));
+    } else {
+      const pct = document.getElementById('cpa-pct').value;
+      parts.push('<strong>CPA:</strong> Provider will be paid ' + (pct ? pct + '%' : '[%]') + ' of gross sale amount per purchase within a ' + cookie + '-day cookie window.' + (epc ? ' Minimum EPC backstop of $' + epc + '.' : '') + (network ? ' Tracked via ' + network + '.' : ' Tracked via mutually shared reporting.'));
+    }
+    const invoiceText = network ? 'Commission processed automatically via ' + network + '.' : 'Provider will invoice Company at month-end. Payment due ' + paymentTerms + '.';
+    parts.push(invoiceText);
+  }
+  if (activeDealTypes.has('cpc')) {
+    const rate      = document.getElementById('cpc-rate').value;
+    const reporting = document.getElementById('cpc-reporting').value;
+    const positions = document.getElementById('cpc-positions').value;
+    const estimate  = document.getElementById('cpc-estimate').value;
+    parts.push('<strong>CPC:</strong> Provider will be paid ' + (rate ? '$' + rate : '[amount]') + ' per click to Company\'s designated landing page' + (positions ? ' (' + positions + ')' : '') + '.' + (estimate ? ' Estimated volume: ' + estimate + '.' : '') + ' Provider will invoice Company at month-end based on clicks recorded in ' + reporting + '. Payment due ' + paymentTerms + '.');
+  }
+  if (activeDealTypes.has('cpl')) {
+    const rate   = document.getElementById('cpl-rate').value;
+    const def    = document.getElementById('cpl-def').value;
+    const verify = document.getElementById('cpl-verify').value;
+    const cookie = document.getElementById('cpl-cookie').value || '30';
+    parts.push('<strong>CPL:</strong> Provider will be paid ' + (rate ? '$' + rate : '[amount]') + ' per qualified lead' + (def ? ' (defined as ' + def + ')' : '') + ' originating from Provider\'s content within a ' + cookie + '-day window.' + (verify ? ' Verified via ' + verify + '.' : '') + ' Provider will invoice Company at month-end. Payment due ' + paymentTerms + '.');
+  }
+
+  if (parts.length) {
+    el.style.display = 'block';
+    el.innerHTML = parts.join('<br><br>');
+  } else {
+    el.style.display = 'none';
+    el.innerHTML = '';
+  }
+}
+
+// ── EXHIBIT FILE ──
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('exhibit-zone').classList.add('drag');
+}
+function handleDragLeave(e) {
+  document.getElementById('exhibit-zone').classList.remove('drag');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('exhibit-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) processExhibitFile(file);
+}
+function handleExhibitFile(input) {
+  if (input.files[0]) processExhibitFile(input.files[0]);
+}
+function processExhibitFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      let data;
+      if (file.name.endsWith('.csv')) {
+        const rows = e.target.result.split('\n').map(r => r.split(','));
+        const headers = rows[0].map(h => h.trim().replace(/^"|"$/g, ''));
+        data = rows.slice(1).filter(r => r.some(c => c.trim()))
+          .map(r => Object.fromEntries(headers.map((h, i) => [h, (r[i] || '').trim().replace(/^"|"$/g, '')])));
+      } else {
+        const wb = XLSX.read(e.target.result, { type: 'binary' });
+        data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+      }
+      exhibitData = data;
+      const successEl = document.getElementById('exhibit-success');
+      successEl.style.display = 'block';
+      successEl.textContent = '✓ ' + data.length + ' rows loaded from "' + file.name + '" — will be attached as Exhibit A';
+      document.getElementById('exhibit-label-wrap').style.display = 'block';
+    } catch (err) {
+      alert('Error reading file: ' + err.message);
+    }
+  };
+  if (file.name.endsWith('.csv')) reader.readAsText(file);
+  else reader.readAsBinaryString(file);
+}
+
+// ── HELPERS ──
+function getV(id) { return (document.getElementById(id) || {}).value || ''; }
+
+function fmtDate(d) {
+  if (!d) return '[Date]';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function getChannels() {
+  const channels = [];
+  document.querySelectorAll('input[type=checkbox]:checked').forEach(cb => {
+    const map = { website: 'editorial website content', youtube: 'YouTube video', tiktok: 'TikTok',
+      instagram: 'Instagram', newsletter: 'newsletter', paid_search: 'paid search', whitelisting: 'social whitelisting' };
+    channels.push(map[cb.value] || cb.value);
+  });
+  return channels;
+}
+
+function getFlatRows() {
+  const rows = [];
+  document.querySelectorAll('.flat-row').forEach(r => {
+    const inputs = r.querySelectorAll('input');
+    if (inputs[0] && inputs[0].value) rows.push({ deliverable: inputs[0].value, amount: inputs[1].value, cadence: inputs[2].value });
+  });
+  return rows;
+}
+
+// ── BUILD IO HTML ──
+function buildIOHtml() {
+  const brand        = getV('io-brand') || '[Brand]';
+  const contact      = getV('io-brand-contact');
+  const email        = getV('io-brand-email');
+  const title        = getV('io-brand-title');
+  const date         = getV('io-date');
+  const startDate    = getV('io-start');
+  const endDate      = getV('io-end');
+  const p4Sig        = getV('io-p4-sig');
+  const p4Title      = getV('io-p4-title');
+  const properties   = getV('io-properties');
+  const scope        = getV('io-scope');
+  const keywords     = getV('io-keywords');
+  const paymentTerms = getV('io-payment-terms');
+  const invoiceMeth  = getV('io-invoice-method');
+  const payNotes     = getV('io-payment-notes');
+  const reviewRights = getV('io-review-rights');
+  const notes        = getV('io-notes');
+  const exhibitLabel = getV('exhibit-label') || 'Exhibit A — Media Plan';
+  const hasExhibit   = !!exhibitData;
+  const channels     = getChannels();
+  const flatRows     = getFlatRows();
+
+  // ── Services section
+  const channelText = channels.length ? channels.join(', ') : 'website editorial content';
+  const keywordClause = keywords === 'none'
+    ? ''
+    : keywords === 'brand_only'
+    ? 'At its sole discretion, Provider may purchase advertising for the Content it produces. Provider may only bid on Company-branded keywords as permitted by Company.'
+    : 'At its sole discretion, Provider may purchase advertising for the Content it produces. Provider may bid on branded and non-branded keywords as agreed between the parties.';
+
+  // ── Compensation rows
+  let compRows = '';
+
+  if (activeDealTypes.has('flat') && flatRows.length) {
+    const list = flatRows.map(r => `<li>${r.deliverable}: $${Number(r.amount).toLocaleString()} ${r.cadence}</li>`).join('');
+    compRows += `<tr><td>Flat Fee</td><td><ul>${list}</ul></td></tr>`;
+  }
+
+  if (activeDealTypes.has('cpa')) {
+    const compType = getV('cpa-comp-type');
+    const cookie   = getV('cpa-cookie') || '30';
+    const epc      = getV('cpa-epc');
+    const network  = getV('cpa-network');
+    const comp = compType === 'dollar'
+      ? `$${getV('cpa-dollar')} per purchase`
+      : `${getV('cpa-pct')}% of gross sale amount per purchase`;
+    const epcClause = epc ? `<li>EPC Backstop: Provider is guaranteed a minimum of $${epc} EPC. If actual EPC falls below this threshold, Company agrees to true-up the difference at month-end.</li>` : '';
+    const trackingClause = network
+      ? `<li>Commission tracked and paid via ${network}.</li>`
+      : `<li>Provider will invoice Company at month-end based on purchases recorded in a mutually shared reporting file. Payment terms are ${paymentTerms}.</li>`;
+    compRows += `<tr><td>CPA</td><td><ul>
+      <li>An Action is defined as a purchase originating from Content managed by Provider.</li>
+      <li>Company agrees to pay Provider ${comp} ("Compensation per Action" or "CPA").</li>
+      <li>Provider will be compensated for purchases driven within ${cookie} days of a user originating from Provider's Content (${cookie}-day cookie window).</li>
+      <li>At any point during the term, Company and Provider may agree to adjust the CPA in writing; email shall suffice.</li>
+      ${epcClause}${trackingClause}
+    </ul></td></tr>`;
+  }
+
+  if (activeDealTypes.has('cpc')) {
+    const rate      = getV('cpc-rate');
+    const reporting = getV('cpc-reporting');
+    const positions = getV('cpc-positions');
+    const estimate  = getV('cpc-estimate');
+    compRows += `<tr><td>CPC</td><td><ul>
+      <li>A Click is defined as a unique visit to Company's designated landing page originating from Content managed by Provider.</li>
+      <li>Company agrees to pay Provider $${rate || '[rate]'} per Click${positions ? ' (' + positions + ')' : ''}.</li>
+      ${estimate ? `<li>Estimated monthly click volume: ${estimate}.</li>` : ''}
+      <li>Provider will invoice Company at month-end based on clicks recorded in ${reporting}. Payment terms are ${paymentTerms}.</li>
+    </ul></td></tr>`;
+  }
+
+  if (activeDealTypes.has('cpl')) {
+    const rate   = getV('cpl-rate');
+    const def    = getV('cpl-def') || 'a form submission on Company\'s site';
+    const verify = getV('cpl-verify');
+    const cookie = getV('cpl-cookie') || '30';
+    compRows += `<tr><td>CPL</td><td><ul>
+      <li>A Lead is defined as ${def}.</li>
+      <li>Company agrees to pay Provider $${rate || '[rate]'} per qualified Lead.</li>
+      <li>Provider will be compensated for Leads originating within ${cookie} days of a user originating from Provider's Content.</li>
+      ${verify ? `<li>Leads verified via ${verify}.</li>` : ''}
+      <li>Provider will invoice Company at month-end. Payment terms are ${paymentTerms}.</li>
+    </ul></td></tr>`;
+  }
+
+  const reviewText = reviewRights === '48hr'
+    ? 'If agreed, Partner shall have a 48-hour review window to provide feedback prior to publication. Editorial standards are non-negotiable.'
+    : 'Provider will publish Content at its sole editorial discretion. Partner does not have content review rights unless separately agreed in writing.';
+
+  const invoiceText = invoiceMeth === 'affiliate_net'
+    ? `Compensation will be processed automatically through the agreed affiliate network.`
+    : invoiceMeth === 'upfront'
+    ? `Payment is due upon signing.`
+    : `Provider will invoice Company at month-end based on the number of actions, clicks, or leads accrued in a mutually shared reporting file or network.`;
+
+  return `<div class="io-doc" id="io-print-area">
+  <h2>Marketing Partnership Insertion Order</h2>
+  <p>This Marketing Partnership Insertion Order ("IO"), dated as of ${fmtDate(date)} ("Effective Date"), is by and between <strong>${brand}</strong> ("Company") and Mattress Advisor, LLC d/b/a Pillar4 Media ("Provider").</p>
+
+  <table>
+    <tr><td>Term</td><td>This IO is effective from ${fmtDate(startDate)} through ${fmtDate(endDate)}, unless earlier terminated. The term may be extended or changed if both parties agree in writing; email shall suffice.</td></tr>
+    <tr><td>Content &amp; Services</td><td><ul>
+      <li>Provider will publish content, branded with Company marks ("Content"), on any combination of its owned &amp; operated domains ("O&amp;Os") and certain third-party publisher partners. Content includes, but is not limited to: ${channelText}.</li>
+      ${properties ? `<li>Properties covered: ${properties}.</li>` : ''}
+      ${scope ? `<li>${scope}</li>` : ''}
+      <li>Provider will send traffic from Content to a landing page for conversion. The destination URL(s) will be provided and tracked by Company.</li>
+      <li>Provider may incorporate promotions and one-time offers provided by Company into its Content.</li>
+      ${keywordClause ? `<li>${keywordClause}</li>` : ''}
+      ${hasExhibit ? `<li>Specific URLs, targeted products, current/target positions, and launch schedules are detailed in <strong>${exhibitLabel}</strong>, which is incorporated herein by reference.</li>` : ''}
+    </ul></td></tr>
+    ${compRows}
+    <tr><td>Payment Terms</td><td><ul>
+      <li>${invoiceText}</li>
+      <li>Payment terms are ${paymentTerms}.</li>
+      ${payNotes ? `<li>${payNotes}</li>` : ''}
+    </ul></td></tr>
+    <tr><td>Content Review</td><td>${reviewText}</td></tr>
+    <tr><td>Term &amp; Termination</td><td>Either party may terminate this IO with 30 days' written notice. Either party may terminate immediately for material breach not cured within 10 days of written notice.</td></tr>
+    ${notes ? `<tr><td>Additional Terms</td><td>${notes}</td></tr>` : ''}
+  </table>
+
+  <p style="font-size:11pt;margin-top:12px">By executing below, the parties agree to be bound by the terms of this IO.</p>
+
+  <div class="io-sig-grid">
+    <div class="io-sig-block">
+      <strong>${brand}</strong><br>
+      Signature: _________________________<br>
+      Name: ${contact || '_________________________'}<br>
+      Title: ${title || '_________________________'}<br>
+      Email: ${email || '_________________________'}<br>
+      Date: _________________________
+    </div>
+    <div class="io-sig-block">
+      <strong>Mattress Advisor, LLC d/b/a Pillar4 Media</strong><br>
+      Signature: _________________________<br>
+      Name: ${p4Sig || '_________________________'}<br>
+      Title: ${p4Title || '_________________________'}<br>
+      Date: _________________________
+    </div>
+  </div>
+</div>`;
+}
+
+function buildExhibitHtml() {
+  if (!exhibitData || !exhibitData.length) return '';
+  const label = getV('exhibit-label') || 'Exhibit A — Media Plan';
+  const brand = getV('io-brand') || '[Brand]';
+  const date  = getV('io-date');
+  const headers = Object.keys(exhibitData[0]);
+  const thead = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+  const tbody = exhibitData.map(row =>
+    '<tr>' + headers.map(h => `<td>${row[h] || ''}</td>`).join('') + '</tr>'
+  ).join('');
+  return `<div class="exhibit-page" style="margin-top:24px">
+  <h3>${label}</h3>
+  <p>Referenced in the IO dated ${fmtDate(date)} between ${brand} and Pillar4 Media. Incorporated herein by reference.</p>
+  <table class="exhibit-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table>
+</div>`;
+}
+
+// ── PREVIEW ──
+function previewIO() {
+  document.getElementById('io-preview-content').innerHTML  = buildIOHtml();
+  document.getElementById('exhibit-preview-content').innerHTML = buildExhibitHtml();
+  // Make the IO doc editable
+  const doc = document.querySelector('#io-preview-content .io-doc');
+  if (doc) doc.setAttribute('contenteditable', 'true');
+  const exhibit = document.querySelector('#exhibit-preview-content .exhibit-page');
+  if (exhibit) exhibit.setAttribute('contenteditable', 'true');
+  const wrap = document.getElementById('preview-wrap');
+  wrap.style.display = 'block';
+  setTimeout(() => wrap.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function regenerateIO() {
+  if (!confirm('This will reset any edits you made in the preview. Continue?')) return;
+  previewIO();
+}
+
+// ── PDF DOWNLOAD ──
+function downloadIO() {
+  const brand = getV('io-brand') || 'Partner';
+  const ioHtml = buildIOHtml();
+  const exhibitHtml = buildExhibitHtml();
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>IO — ${brand}</title>
+<style>
+  @page{size:8.5in 11in;margin:1in}
+  body{font-family:Georgia,serif;font-size:12pt;line-height:1.8;color:#111;margin:0;padding:40px}
+  h2{font-size:15pt;text-align:center;margin-bottom:20px}
+  p{margin-bottom:10px;font-size:12pt}
+  table{width:100%;border-collapse:collapse;margin:14px 0}
+  td{padding:9px 12px;border:1px solid #ccc;vertical-align:top;font-size:11pt}
+  td:first-child{width:22%;font-weight:bold;background:#f5f5f5}
+  ul{margin:0;padding-left:18px}li{margin-bottom:4px}
+  .io-sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:32px}
+  .io-sig-block{border-top:1px solid #333;padding-top:8px;font-size:10.5pt;line-height:2}
+  .exhibit-page{page-break-before:always;padding-top:20px}
+  .exhibit-page h3{font-size:14pt;margin-bottom:6px}
+  .exhibit-page p{font-size:11pt;color:#555;margin-bottom:14px}
+  .exhibit-table{width:100%;border-collapse:collapse;font-size:10pt}
+  .exhibit-table th{background:#f0f0f0;padding:7px 10px;border:1px solid #ccc;font-weight:bold;text-align:left}
+  .exhibit-table td{padding:7px 10px;border:1px solid #ccc}
+</style></head><body>
+${ioHtml.replace(/class="io-doc"[^>]*>/,'style="padding:0">').replace(/class="io-sig-grid"/,'class="io-sig-grid"').replace(/class="io-sig-block"/g,'class="io-sig-block"')}
+${exhibitHtml}
+<script>window.onload=()=>{window.print();}<\/script>
+</body></html>`);
+  win.document.close();
+}
+
+// ── DOCX (Word-compatible HTML) DOWNLOAD ──
+function downloadIODocx() {
+  const brand = getV('io-brand') || 'Partner';
+  const ioHtml = buildIOHtml();
+  const exhibitHtml = buildExhibitHtml();
+  const wordHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset='utf-8'><title>IO — ${brand}</title>
+<style>
+  @page{size:8.5in 11in;margin:1in}
+  body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.7;color:#111}
+  h2{font-size:14pt;font-weight:bold;text-align:center;margin-bottom:16pt}
+  p{margin-bottom:10pt;font-size:12pt}
+  table{width:100%;border-collapse:collapse;margin:12pt 0}
+  td{padding:8pt 12pt;border:1pt solid #ccc;vertical-align:top;font-size:11pt}
+  td:first-child{width:22%;font-weight:bold;background:#f5f5f5}
+  ul{margin:0;padding-left:16pt}li{margin-bottom:4pt}
+  .io-sig-grid{display:table;width:100%;margin-top:28pt}
+  .io-sig-block{display:table-cell;width:50%;border-top:1pt solid #333;padding-top:8pt;font-size:10pt;line-height:1.9;padding-right:20pt}
+  .exhibit-page{page-break-before:always}
+  .exhibit-table{width:100%;border-collapse:collapse;font-size:10pt}
+  .exhibit-table th{background:#f0f0f0;padding:6pt 9pt;border:1pt solid #ccc;font-weight:bold}
+  .exhibit-table td{padding:6pt 9pt;border:1pt solid #ccc}
+</style>
+</head><body>
+<div>${ioHtml.replace(/<div class="io-doc"[^>]*>/, '').replace(/<\/div>\s*$/, '')}</div>
+${exhibitHtml}
+</body></html>`;
+
+  const blob = new Blob([wordHtml], { type: 'application/msword' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `IO_${brand.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.doc`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── DOWNLOAD FROM EDITABLE PREVIEW ──
+function downloadFromPreview() {
+  const doc     = document.getElementById('io-preview-content').innerHTML;
+  const exhibit = document.getElementById('exhibit-preview-content').innerHTML;
+  const brand   = getV('io-brand') || 'Partner';
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>IO — ${brand}</title>
+<style>
+  @page{size:8.5in 11in;margin:1in}
+  body{font-family:Georgia,serif;font-size:12pt;line-height:1.8;color:#111;margin:0;padding:40px}
+  h2{font-size:15pt;text-align:center;margin-bottom:20px}
+  p{margin-bottom:10px;font-size:12pt}
+  table{width:100%;border-collapse:collapse;margin:14px 0}
+  td{padding:9px 12px;border:1px solid #ccc;vertical-align:top;font-size:11pt}
+  td:first-child{width:22%;font-weight:bold;background:#f5f5f5}
+  ul{margin:0;padding-left:18px}li{margin-bottom:4px}
+  .io-sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:32px}
+  .io-sig-block{border-top:1px solid #333;padding-top:8px;font-size:10.5pt;line-height:2}
+  .exhibit-page{page-break-before:always;padding-top:20px}
+  .exhibit-page h3{font-size:14pt;margin-bottom:6px}
+  .exhibit-page p{font-size:11pt;color:#555;margin-bottom:14px}
+  .exhibit-table{width:100%;border-collapse:collapse;font-size:10pt}
+  .exhibit-table th{background:#f0f0f0;padding:7px 10px;border:1px solid #ccc;font-weight:bold;text-align:left}
+  .exhibit-table td{padding:7px 10px;border:1px solid #ccc}
+  [contenteditable]{outline:none}
+</style></head><body>
+${doc}${exhibit}
+<script>window.onload=()=>{window.print();}<\/script>
+</body></html>`);
+  win.document.close();
+}
+
+function downloadDocxFromPreview() {
+  const doc     = document.getElementById('io-preview-content').innerHTML;
+  const exhibit = document.getElementById('exhibit-preview-content').innerHTML;
+  const brand   = getV('io-brand') || 'Partner';
+  const wordHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset='utf-8'><title>IO — ${brand}</title>
+<style>
+  @page{size:8.5in 11in;margin:1in}
+  body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.7;color:#111}
+  h2{font-size:14pt;font-weight:bold;text-align:center;margin-bottom:16pt}
+  p{margin-bottom:10pt}
+  table{width:100%;border-collapse:collapse;margin:12pt 0}
+  td{padding:8pt 12pt;border:1pt solid #ccc;vertical-align:top;font-size:11pt}
+  td:first-child{width:22%;font-weight:bold;background:#f5f5f5}
+  ul{margin:0;padding-left:16pt}li{margin-bottom:4pt}
+  .io-sig-grid{display:table;width:100%;margin-top:28pt}
+  .io-sig-block{display:table-cell;width:50%;border-top:1pt solid #333;padding-top:8pt;font-size:10pt;line-height:1.9;padding-right:20pt}
+  .exhibit-page{page-break-before:always}
+  .exhibit-table{width:100%;border-collapse:collapse;font-size:10pt}
+  .exhibit-table th{background:#f0f0f0;padding:6pt 9pt;border:1pt solid #ccc;font-weight:bold}
+  .exhibit-table td{padding:6pt 9pt;border:1pt solid #ccc}
+  [contenteditable]{outline:none}
+</style>
+</head><body>${doc}${exhibit}</body></html>`;
+  const blob = new Blob([wordHtml], { type: 'application/msword' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `IO_${brand.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.doc`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+</script>
+</body>
+</html>
